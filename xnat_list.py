@@ -36,4 +36,4 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--project', dest='project', required=True)
     parser.add_argument('-r', '--regex', dest='regex', required=True)
     args = parser.parse_args()
-    xget_file(args.config_file, args.project, args.ref)
+    xget_file(args.config_file, args.project, args.regex)
