@@ -10,8 +10,11 @@ import re
 
 def xget_file(config_file=None, project=None, regex=None, work_dir=None):
     xnat_list = {}
+    subjs_json = work_dir + '/' + project + '.json'
     with open(config_file) as f:
         config = json.load(f)
+    with open(subjs_json, 'r') as f:
+        xnat_list = json.load(f)
     session = xnat.connect(config['server'],
                            user=config['user'],
                            password=config['password'])
@@ -19,21 +22,15 @@ def xget_file(config_file=None, project=None, regex=None, work_dir=None):
         if not re.search(regex, session.projects[project].subjects[subject].label):
             continue
         subject = session.projects[project].subjects[subject].label
-        xnat_list[subject] = []
+        if subject not in xnat_list.keys():
+            xnat_list[subject] = []
         for exp in session.subjects[subject].experiments:
             exp = session.subjects[subject].experiments[exp].label
-            xnat_list[subject].append(exp)
+            if exp not in xnat_list[subject]:
+                xnat_list[subject].append(exp)
             #subses_label = session.subjects[subject].experiments[exp].label
-    with open(work_dir + '/' + project + 'json', 'w') as df:
+    with open(subjs_json, 'w') as df:
         json.dump(xnat_list, df, indent=4)
-
-
-    #select_exp = '/projects/' + project +'/experiments'
-    #exps = central.select(select_exp).get()
-    #if ref == 'experiments':
-    #    print(" ".join([str(x) for x in exps]))
-    #elif ref == 'labels':
-    #    print(" ".join([central.select(select_exp + '/' + x).label() for x in exps]))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments required to pull files')
