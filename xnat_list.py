@@ -12,7 +12,10 @@ import xnat
 
 def xget_file(config_file=None, project=None, regex=None, work_dir=None):
     xnat_list = {}
-    subjs_json = work_dir + '/' + project + '.json'
+
+    dicom_dir = work_dir + '/' + project + '/'
+    os.makedirs(dicom_dir, exist_ok=True)
+    subjs_json = dicom_dir + 'downloaded_subjs.json'
     with open(config_file) as f:
         config = json.load(f)
     if os.path.isfile(subjs_json):
@@ -33,6 +36,7 @@ def xget_file(config_file=None, project=None, regex=None, work_dir=None):
             exp = session.subjects[subject].experiments[exp].label
             if exp not in xnat_list[subject]:
                 xnat_list[subject].append(exp)
+                session.subject[subject].experiments[exp].download(dicom_dir + exp + '.tar')
             #subses_label = session.subjects[subject].experiments[exp].label
     with open(subjs_json, 'w') as df:
         json.dump(xnat_list, df, indent=4)
