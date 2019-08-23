@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+import os
 import json
-import xnat
 import sys
 import argparse
 import re
+import xnat
+
 #config_file = sys.argv[1]
 #project = sys.argv[2]
 #ref = sys.argv[3]
@@ -13,8 +15,11 @@ def xget_file(config_file=None, project=None, regex=None, work_dir=None):
     subjs_json = work_dir + '/' + project + '.json'
     with open(config_file) as f:
         config = json.load(f)
-    with open(subjs_json, 'r') as f:
-        xnat_list = json.load(f)
+    if os.path.isfile(subjs_json):
+        with open(subjs_json, 'r') as f:
+            xnat_list = json.load(f)
+    else:
+        xnat_list = {}
     session = xnat.connect(config['server'],
                            user=config['user'],
                            password=config['password'])
