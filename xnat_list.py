@@ -16,7 +16,7 @@ def xget_file(config_file=None, project=None, regex=None):
                            user=config['user'],
                            password=config['password'])
     for subject in session.projects[project].subjects:
-        if not re.search(session.projects[project].subjects[subject].label, regex):
+        if not re.search(regex, session.projects[project].subjects[subject].label):
             continue
         for exp in session.subjects[subject].experiments:
             subses_label = session.subjects[subject].experiments[exp].label
