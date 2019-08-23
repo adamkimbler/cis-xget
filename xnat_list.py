@@ -9,8 +9,10 @@ import argparse
 
 def xget_file(config_file=None, project=None, ref=None):
     xnat_list = []
-    central = session.projects[project]
-    for subject in central.subjects:
+    session = xnat.connect('http://xnat.fiu.edu:8080/xnat/',
+                           user='akimb009',
+                           password='h*RJ!0J2F9HTN*XQ')
+    for subject in session.projects[project].subjects:
         for exp in central.subjects[subject].experiments:
             xnat_list.append(exp)
     print(xnat_list)
