@@ -3,6 +3,7 @@ import json
 import xnat
 import sys
 import argparse
+import re
 #config_file = sys.argv[1]
 #project = sys.argv[2]
 #ref = sys.argv[3]
@@ -15,7 +16,7 @@ def xget_file(config_file=None, project=None, regex=None):
                            user=config['user'],
                            password=config['password'])
     for subject in session.projects[project].subjects:
-        if session.projects[project].subjects[subject].label.matches(regex):
+        if not re.search(session.projects[project].subjects[subject].label, regex):
             continue
         for exp in session.subjects[subject].experiments:
             subses_label = session.subjects[subject].experiments[exp].label
