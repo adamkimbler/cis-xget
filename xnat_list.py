@@ -13,7 +13,7 @@ def xget_file(config_file=None, project=None, ref=None):
                            user='akimb009',
                            password='h*RJ!0J2F9HTN*XQ')
     for subject in session.projects[project].subjects:
-        if 'R01' not in session.projects[project].subjects[subject]:
+        if 'R01' not in session.projects[project].subjects[subject].label:
             continue
         for exp in session.subjects[subject].experiments:
             subses_label = session.subjects[subject].experiments[exp].label
