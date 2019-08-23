@@ -32,11 +32,11 @@ def xget_file(config_file=None, project=None, regex=None, work_dir=None):
         subject = session.projects[project].subjects[subject].label
         if subject not in xnat_list.keys():
             xnat_list[subject] = []
-        for exp in session.subjects[subject].experiments:
-            exp = session.subjects[subject].experiments[exp].label
+        for exp in session.projects[project].subjects[subject].experiments:
+            exp = session.projects[project].subjects[subject].experiments[exp].label
             if exp not in xnat_list[subject]:
                 xnat_list[subject].append(exp)
-                session.subject[subject].experiments[exp].download(dicom_dir + exp + '.tar')
+                session.projects[project].subjects[subject].experiments[exp].download(dicom_dir + exp + '.tar')
             #subses_label = session.subjects[subject].experiments[exp].label
     with open(subjs_json, 'w') as df:
         json.dump(xnat_list, df, indent=4)
