@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pyxnat import Interface
+import xnat
 import sys
 import argparse
 
@@ -8,13 +8,20 @@ import argparse
 #ref = sys.argv[3]
 
 def xget_file(config_file=None, project=None, ref=None):
-    central = Interface(config=config_file)
-    select_exp = '/projects/' + project +'/experiments'
-    exps = central.select(select_exp).get()
-    if ref == 'experiments':
-        print(" ".join([str(x) for x in exps]))
-    elif ref == 'labels':
-        print(" ".join([central.select(select_exp + '/' + x).label() for x in exps]))
+    xnat_list = []
+    central = session.projects[project]
+    for subject in central.subjects:
+        for exp in central.subjects[subject].experiments:
+            xnat_list.append(exp)
+    print(xnat_list)
+
+
+    #select_exp = '/projects/' + project +'/experiments'
+    #exps = central.select(select_exp).get()
+    #if ref == 'experiments':
+    #    print(" ".join([str(x) for x in exps]))
+    #elif ref == 'labels':
+    #    print(" ".join([central.select(select_exp + '/' + x).label() for x in exps]))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments required to pull files')
