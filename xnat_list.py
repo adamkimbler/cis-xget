@@ -14,7 +14,7 @@ def xget_file(config_file=None, project=None, ref=None):
                            password='h*RJ!0J2F9HTN*XQ')
     for subject in session.projects[project].subjects:
         for exp in session.subjects[subject].experiments:
-            xnat_list.append(exp.label)
+            xnat_list.append(session.subjects[subject].experiments[exp].label)
     print(xnat_list)
 
 
