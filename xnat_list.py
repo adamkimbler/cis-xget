@@ -38,7 +38,7 @@ def xget_file(config_file=None,
         for exp in subject_data.experiments:
             exp_data = subject_data.experiments[exp]
             if exp_data.label not in xnat_list[subject_data.label]:
-                xnat_list[subject].append(exp_data.label)
+                xnat_list[subject_data.label].append(exp_data.label)
                 print(exp_data.label)
                 #exp_data.download_dir(dicom_dir)
             #subses_label = session.subjects[subject].experiments[exp].label
