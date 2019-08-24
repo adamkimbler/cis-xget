@@ -24,8 +24,8 @@ def xget_file(config_file=None,
     config = json_load(config_file)
     xnat_list = {}
     if os.path.isfile(subjs_json):
+        print(xnat_list)
         xnat_list = json_load(subjs_json)
-    print(xnat_list)
     session = xnat.connect(config['server'],
                            user=config['user'],
                            password=config['password'])
