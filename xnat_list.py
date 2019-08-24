@@ -41,7 +41,7 @@ def xget_file(config_file=None,
             if exp_data.label not in xnat_list[subject]:
                 xnat_list[subject].append(exp_data.label)
                 print(exp_data.label)
-                exp_data.download_dir(dicom_dir)
+                #exp_data.download_dir(dicom_dir)
             #subses_label = session.subjects[subject].experiments[exp].label
     session.disconnect()
     with open(subjs_json, 'w') as dump_file:
