@@ -37,6 +37,7 @@ def xget_file(config_file=None,
             xnat_list[subject] = []
         for exp in subject_data.experiments:
             exp_data = subject_data.experiments[exp]
+            subject_data.experiments.download_zip(os.path.join(dicom_dir, 'test.zip'))
             if exp_data.label not in xnat_list[subject]:
                 xnat_list[subject].append(exp_data.label)
                 exp_data.download_zip(os.path.join(dicom_dir, exp_data.label + '.zip'))
