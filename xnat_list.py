@@ -23,8 +23,8 @@ def xget_file(config_file=None,
     subjs_json = dicom_dir + 'downloaded_subjects.json'
     config = json_load(config_file)
     xnat_list = {}
+    print(subjs_json)
     if os.path.isfile(subjs_json):
-        print(subjs_json)
         xnat_list = json_load(subjs_json)
         print(xnat_list)
     session = xnat.connect(config['server'],
