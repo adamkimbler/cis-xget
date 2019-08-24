@@ -3,6 +3,7 @@ import os
 import json
 import argparse
 import re
+import tarfile
 import xnat
 
 def json_load(filename):
@@ -12,7 +13,9 @@ def json_load(filename):
     with open(filename, 'r') as read_json:
         data = json.load(read_json)
     return data
-
+def add_to_tar(tar_path, input_item):
+    with tarfile.open(tar_path, 'w:gz') as tar:
+        tar.add(input_item)
 def xget_file(config_file=None,
               project=None,
               regex=None,
@@ -41,6 +44,8 @@ def xget_file(config_file=None,
                 xnat_list[subject_data.label].append(exp_data.label)
                 print(exp_data.label)
                 exp_data.download_dir(dicom_dir)
+                add_to_tar(dicom_dir + '/' + exp_data.label + '.tar.gz',
+                           dicom_dir + '/' + exp_data.label + '/scans/')
             #subses_label = session.subjects[subject].experiments[exp].label
     session.disconnect()
     with open(subjs_json, 'w') as dump_file:
