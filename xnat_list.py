@@ -20,7 +20,7 @@ def xget_file(config_file=None,
     xnat_list = {}
     dicom_dir = os.path.join(work_dir, project)
     os.makedirs(dicom_dir, exist_ok=True)
-    subjs_json = dicom_dir + 'downloaded_subjs.json'
+    subjs_json = dicom_dir + 'downloaded_subjects.json'
     config = json_load(config_file)
     xnat_list = {}
     if os.path.isfile(subjs_json):
