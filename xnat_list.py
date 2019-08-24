@@ -1,45 +1,47 @@
 #!/usr/bin/env python
 import os
 import json
-import sys
 import argparse
 import re
 import xnat
 
-#config_file = sys.argv[1]
-#project = sys.argv[2]
-#ref = sys.argv[3]
-
-def xget_file(config_file=None, project=None, regex=None, work_dir=None):
+def json_load(filename):
+    '''
+    Quick function to load json from file in one line
+    '''
+    with open(filename, 'r') as read_json:
+        data = json.load(read_json)
+    return data
+def xget_file(config_file=None,
+              project=None,
+              regex=None,
+              work_dir=None):
     xnat_list = {}
-
-    dicom_dir = work_dir + '/' + project + '/'
+    dicom_dir = os.path.join(work_dir, project)
     os.makedirs(dicom_dir, exist_ok=True)
     subjs_json = dicom_dir + 'downloaded_subjs.json'
-    with open(config_file) as f:
-        config = json.load(f)
+    config = json_load(config_file)
+    xnat_list = {}
     if os.path.isfile(subjs_json):
-        with open(subjs_json, 'r') as f:
-            xnat_list = json.load(f)
-    else:
-        xnat_list = {}
+        xnat_list = json_load(subjs_json)
     session = xnat.connect(config['server'],
                            user=config['user'],
                            password=config['password'])
-    for subject in session.projects[project].subjects:
-        if not re.search(regex, session.projects[project].subjects[subject].label):
+    project_data = session.projects[project]
+    for subject in project_data.subjects:
+        subject_data = session.projects[project].subjects[subject]
+        if not re.search(regex, subject_data.label):
             continue
-        subject = session.projects[project].subjects[subject].label
-        if subject not in xnat_list.keys():
+        if subject_data.label not in xnat_list.keys():
             xnat_list[subject] = []
-        for exp in session.projects[project].subjects[subject].experiments:
-            exp = session.projects[project].subjects[subject].experiments[exp].label
-            if exp not in xnat_list[subject]:
-                xnat_list[subject].append(exp)
-                session.projects[project].subjects[subject].experiments[exp].download(dicom_dir + exp + '.tar')
+        for exp in subject_data.experiments:
+            exp_data = subject_data.experiments[exp]
+            if exp_data.label not in xnat_list[subject]:
+                xnat_list[subject].append(exp_data.label)
+                exp.download(dicom_dir + exp + '.tar.gz')
             #subses_label = session.subjects[subject].experiments[exp].label
-    with open(subjs_json, 'w') as df:
-        json.dump(xnat_list, df, indent=4)
+    with open(subjs_json, 'w') as dump_file:
+        json.dump(xnat_list, dump_file, indent=4)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments required to pull files')
