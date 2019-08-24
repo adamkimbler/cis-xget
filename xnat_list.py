@@ -37,10 +37,10 @@ def xget_file(config_file=None,
             xnat_list[subject] = []
         for exp in subject_data.experiments:
             exp_data = subject_data.experiments[exp]
-            subject_data.experiments.download_zip(os.path.join(dicom_dir, 'test.zip'))
+            subject_data.experiments.download(os.path.join(dicom_dir, 'test.zip'), format='.zip')
             if exp_data.label not in xnat_list[subject]:
                 xnat_list[subject].append(exp_data.label)
-                exp_data.download_zip(os.path.join(dicom_dir, exp_data.label + '.zip'))
+                exp_data.download_(os.path.join(dicom_dir, exp_data.label + '.zip'), format='.zip')
             #subses_label = session.subjects[subject].experiments[exp].label
     with open(subjs_json, 'w') as dump_file:
         json.dump(xnat_list, dump_file, indent=4)
