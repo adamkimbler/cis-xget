@@ -12,6 +12,7 @@ def json_load(filename):
     with open(filename, 'r') as read_json:
         data = json.load(read_json)
     return data
+
 def xget_file(config_file=None,
               project=None,
               regex=None,
@@ -38,7 +39,7 @@ def xget_file(config_file=None,
             exp_data = subject_data.experiments[exp]
             if exp_data.label not in xnat_list[subject]:
                 xnat_list[subject].append(exp_data.label)
-                exp.download(dicom_dir + exp + '.tar.gz')
+                exp_data.download(dicom_dir + exp + '.tar.gz')
             #subses_label = session.subjects[subject].experiments[exp].label
     with open(subjs_json, 'w') as dump_file:
         json.dump(xnat_list, dump_file, indent=4)
