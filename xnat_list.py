@@ -19,6 +19,7 @@ def xget_file(config_file=None,
               work_dir=None):
     xnat_list = {}
     dicom_dir = os.path.join(work_dir, project)
+    print(dicom_dir + 'downloaded_subjects.json')
     os.makedirs(dicom_dir, exist_ok=True)
     subjs_json = dicom_dir + 'downloaded_subjects.json'
     print(subjs_json)
@@ -41,7 +42,7 @@ def xget_file(config_file=None,
             if exp_data.label not in xnat_list[subject]:
                 xnat_list[subject].append(exp_data.label)
                 print(exp_data.label)
-                exp_data.download_dir(dicom_dir)
+                #exp_data.download_dir(dicom_dir)
             #subses_label = session.subjects[subject].experiments[exp].label
     with open(subjs_json, 'w') as dump_file:
         json.dump(xnat_list, dump_file, indent=4)
