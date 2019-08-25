@@ -3,7 +3,8 @@ import os
 import json
 import argparse
 import re
-import tarfile
+import shutil
+import subprocess as sp
 import xnat
 
 def json_load(filename):
@@ -14,48 +15,59 @@ def json_load(filename):
         data = json.load(read_json)
     return data
 def add_to_tar(tar_path, input_item):
-    with tarfile.open(tar_path, 'w:gz') as tar:
-        tar.add(input_item)
-def xget_file(config_file=None,
+    sp.Popen(['tar', '-czf', tar_path, input_item]).wait()
+
+def xget_file(credentials=None,
               project=None,
-              regex=None,
-              work_dir=None):
-    xnat_list = {}
-    dicom_dir = os.path.join(work_dir, project)
+              filter='[\w\W]',
+              dicom_dir=None):
+
+    # Produces dictiona of subject and session labels already grabbed from xnat,
+    # and if json from previous run exists loads them for exclusion
+    previous_subjs = {}
     os.makedirs(dicom_dir, exist_ok=True)
     subjs_json = dicom_dir + '/downloaded_subjects.json'
-    config = json_load(config_file)
-    xnat_list = {}
+    credentials = json_load(credentials)
+    previous_subjs = {}
     if os.path.isfile(subjs_json):
-        xnat_list = json_load(subjs_json)
-    session = xnat.connect(config['server'],
-                           user=config['user'],
-                           password=config['password'])
+        previous_subjs = json_load(subjs_json)
+
+    # Creates XNAT session and looks for scans not already grabbed from XNAT,
+    # then ends session once completed
+    session = xnat.connect(credentials['server'],
+                           user=credentials['user'],
+                           password=credentials['password'])
     project_data = session.projects[project]
     for subject in project_data.subjects:
         subject_data = session.projects[project].subjects[subject]
-        if not re.search(regex, subject_data.label):
+        if not re.search(filter, subject_data.label):
             continue
-        if subject_data.label not in xnat_list.keys():
-            xnat_list[subject_data.label] = []
+        if subject_data.label not in previous_subjs.keys():
+            previous_subjs[subject_data.label] = []
         for exp in subject_data.experiments:
             exp_data = subject_data.experiments[exp]
-            if exp_data.label not in xnat_list[subject_data.label]:
-                xnat_list[subject_data.label].append(exp_data.label)
+            if exp_data.label not in previous_subjs[subject_data.label]:
+                previous_subjs[subject_data.label].append(exp_data.label)
                 print(exp_data.label)
                 exp_data.download_dir(dicom_dir)
                 add_to_tar(dicom_dir + '/' + exp_data.label + '.tar.gz',
                            dicom_dir + '/' + exp_data.label + '/scans/')
-            #subses_label = session.subjects[subject].experiments[exp].label
+                shutil.rmtree(dicom_dir + '/' + exp_data.label)
     session.disconnect()
+
+    # Dumps json with any newly scans grabbed and tarred from XNAT
     with open(subjs_json, 'w') as dump_file:
-        json.dump(xnat_list, dump_file, indent=4)
+        json.dump(previous_subjs, dump_file, indent=4)
 
 if __name__ == '__main__':
+    # New set of command line arguments --config is the credentials file
     parser = argparse.ArgumentParser('Arguments required to pull files')
-    parser.add_argument('-c', '--config', dest='config_file', required=True)
-    parser.add_argument('-p', '--project', dest='project', required=True)
-    parser.add_argument('-w', dest='work_dir')
-    parser.add_argument('-r', '--regex', dest='regex', required=True)
+    parser.add_argument('-c', '--credentials', dest='credentials', required=True,
+                        help='Path to credentials file for logging in to XNAT')
+    parser.add_argument('-p', '--project', dest='project', required=True,
+                        help='Name of project on XNAT')
+    parser.add_argument('-d', dest='dicom_dir', required=True,
+                        help='location of main directory for storing dicoms')
+    parser.add_argument('-f', '--filter', dest='filter')
     args = parser.parse_args()
-    xget_file(args.config_file, args.project, args.regex, args.work_dir)
+    xget_file(*args)
