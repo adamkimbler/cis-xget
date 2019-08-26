@@ -14,16 +14,19 @@ def json_load(filename):
     with open(filename, 'r') as read_json:
         data = json.load(read_json)
     return data
+
 def add_to_tar(tar_path, input_item):
     sp.Popen(['tar', '-czf', tar_path, input_item]).wait()
 
 def xget_file(credentials=None,
               project=None,
-              filter=r'[\w\W]',
-              dicom_dir=None):
+              dicom_dir=None,
+              _filter=None):
 
     # Produces dictiona of subject and session labels already grabbed from xnat,
     # and if json from previous run exists loads them for exclusion
+    if not _filter:
+        _filter = r'([\w\W])'
     previous_subjs = {}
     os.makedirs(dicom_dir, exist_ok=True)
     subjs_json = dicom_dir + '/downloaded_subjects.json'
@@ -40,7 +43,7 @@ def xget_file(credentials=None,
     project_data = session.projects[project]
     for subject in project_data.subjects:
         subject_data = session.projects[project].subjects[subject]
-        if not re.search(filter, subject_data.label):
+        if not re.search(_filter, subject_data.label):
             continue
         if subject_data.label not in previous_subjs.keys():
             previous_subjs[subject_data.label] = []
@@ -70,4 +73,4 @@ if __name__ == '__main__':
                         help='location of main directory for storing dicoms')
     parser.add_argument('-f', '--filter', dest='filter')
     args = parser.parse_args()
-    xget_file(*args)
+    xget_file(args.credentials, args.project, args.dicom_dir, args.filter)
