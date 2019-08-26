@@ -19,7 +19,7 @@ def add_to_tar(tar_path, input_item):
 
 def xget_file(credentials=None,
               project=None,
-              filter='[\w\W]',
+              filter=r'[\w\W]',
               dicom_dir=None):
 
     # Produces dictiona of subject and session labels already grabbed from xnat,
